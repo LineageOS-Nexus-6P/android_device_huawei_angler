@@ -1,0 +1,35 @@
+type mm_qcamerad, domain;
+type mm_qcamerad_exec, exec_type, vendor_file_type, file_type;
+typeattribute mm_qcamerad data_between_core_and_vendor_violators;
+
+init_daemon_domain(mm_qcamerad)
+
+binder_use(mm_qcamerad)
+binder_call(mm_qcamerad, system_server)
+hal_client_domain(mm_qcamerad, hal_graphics_allocator)
+get_prop(mm_qcamerad, boot_status_prop)
+
+allow mm_qcamerad self:capability sys_nice;
+allow mm_qcamerad self:process execmem;
+allow mm_qcamerad self:unix_dgram_socket create_socket_perms;
+
+allow mm_qcamerad camera_device:chr_file rw_file_perms;
+allow mm_qcamerad video_device:chr_file rw_file_perms;
+allow mm_qcamerad ion_device:chr_file rw_file_perms;
+allow mm_qcamerad gpu_device:chr_file rw_file_perms;
+allow mm_qcamerad input_device:dir r_dir_perms;
+allow mm_qcamerad input_device:chr_file r_file_perms;
+
+allow mm_qcamerad camera_data_file:dir rw_dir_perms;
+allow mm_qcamerad camera_data_file:file create_file_perms;
+allow mm_qcamerad camera_data_file:sock_file create_file_perms;
+
+allow mm_qcamerad persist_file:dir search;
+allow mm_qcamerad persist_data_file:dir search;
+allow mm_qcamerad persist_data_file:file r_file_perms;
+
+allow mm_qcamerad { cameraserver surfaceflinger hal_camera_default }:fd use;
+# SensorService returns its BitTube FD to the legacy daemon for gyro samples.
+allow mm_qcamerad system_server:fd use;
+allow mm_qcamerad sensorservice_service:service_manager find;
+allow mm_qcamerad virtual_device_native_service:service_manager find;

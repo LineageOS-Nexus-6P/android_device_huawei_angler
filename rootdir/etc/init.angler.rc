@@ -38,6 +38,16 @@ on early-boot
     write /sys/kernel/boot_adsp/boot 1
 
 on boot
+    # boot_cpus=0-3 is intentional. Bring up and configure the A57 cluster
+    # synchronously before cpusets begin assigning foreground work to it.
+    exec - root system -- /vendor/bin/init.angler.power.sh
+
+    # The modern SystemUI notification stack is GPU-bound on Adreno 430.
+    # Let the Angler Power HAL apply a short interaction-only floor while
+    # leaving the stock governor and thermal ceiling in control.
+    chown root system /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+    chmod 0660 /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+
     mkdir /dev/cpuset/camera-daemon
     write /dev/cpuset/camera-daemon/cpus 0
     write /dev/cpuset/camera-daemon/mems 0
@@ -69,6 +79,13 @@ on post-fs-data
     write /sys/block/mmcblk0/queue/read_ahead_kb 2048
     write /sys/block/mmcblk0/queue/nr_requests 256
 
+    # The stock qseecomd drops to system and opens every component of the
+    # fingerprint database path as a directory. Android 15 creates these two
+    # parents without directory-read permission for system, which makes the
+    # FPC trustlet fail while storing an enrolled template.
+    chmod 0755 /data/vendor_de
+    chmod 0775 /data/vendor_de/0
+
     mkdir /data/vendor/wifi 0770 wifi wifi
     mkdir /data/vendor/wifi/wpa 0770 wifi wifi
     mkdir /data/vendor/wifi/wpa/sockets 0770 wifi wifi
@@ -80,6 +97,24 @@ on post-fs-data
     mkdir /data/time 0700 system system
     mkdir /data/audio 0770 media audio
     mkdir /data/vendor/nfc 0770 nfc nfc
+
+    # Qualcomm's stock perfd owns the short, automatically expiring CPU locks
+    # used by Angler's interaction and audio-start power hints.
+    mkdir /data/misc/perfd 0755 root system
+    chmod 2755 /data/misc/perfd
+    mkdir /data/system/perfd 0770 root system
+    rm /data/system/perfd/default_values
+    chmod 2770 /data/system/perfd
+
+    # Stock Angler BCM4358 power, wake and UART controls.
+    chmod 0660 /proc/bluetooth/sleep/lpm
+    chmod 0660 /proc/bluetooth/sleep/btwrite
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chmod 0660 /dev/ttyHS0
+    chown bluetooth bluetooth /proc/bluetooth/sleep/lpm
+    chown bluetooth bluetooth /proc/bluetooth/sleep/btwrite
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /dev/ttyHS0
 
 # The legacy Qualcomm camera HAL communicates with this stock daemon over
 # /data/misc/camera. It must be available before the HIDL provider probes HAL3.
@@ -127,6 +162,23 @@ service irsc_util /vendor/bin/irsc_util /vendor/etc/sec_config
     user root
     oneshot
 
+# Stock Angler thermal daemon. Without this userspace controller the kernel
+# only applies its emergency msm_thermal limit, after the SoC is already hot.
+service thermal-engine /vendor/bin/thermal-engine
+    class main
+    user root
+    socket thermal-send-client stream 0660 system system
+    socket thermal-recv-client stream 0660 system system
+    socket thermal-recv-passive-client stream 0660 system system
+    group root radio system
+    writepid /dev/cpuset/system-background/tasks
+
+service perfd /vendor/bin/perfd
+    class main
+    user root
+    group root system
+    task_profiles ServiceCapacityLow
+
 # Qualcomm's stock QMI transport is shared by RIL and the mobile-data stack.
 service qmuxd /vendor/bin/qmuxd
     class main
@@ -138,6 +190,7 @@ service netmgrd /vendor/bin/netmgrd
     class main
     user root
     group root radio system inet net_admin net_raw wakelock
+    setenv PATH /system/bin/netmgr-wrapper:/system/bin:/vendor/bin
     task_profiles ServiceCapacityLow
 
 service mcfg-sh /vendor/bin/init.mcfg.sh
@@ -170,4 +223,8 @@ on property:ro.boot.hardware.sku=H1511
 # The stock camera daemon can finish its cold-boot probe after cameraserver's
 # first enumeration. Reconnect once Android is fully up, as Angler 17.1 did.
 on property:sys.boot_completed=1
+    # The boot command line disables low-power states while the CPU topology is
+    # initialized. Stock OPM7 and LineageOS 17.1 release that boot-only guard
+    # here so the A57 cluster can enter deep idle instead of heat-throttling.
+    write /sys/module/lpm_levels/parameters/sleep_disabled 0
     restart cameraserver

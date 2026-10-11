@@ -1,0 +1,4 @@
+service vendor.power-angler /vendor/bin/hw/android.hardware.power-service.angler
+    class hal
+    user nobody
+    group system

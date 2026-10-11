@@ -25,14 +25,19 @@ PRODUCT_AAPT_PREBUILT_DPI := xxxhdpi xxhdpi xhdpi hdpi
 PRODUCT_CHARACTERISTICS := nosdcard
 
 PRODUCT_SYSTEM_PROPERTIES += \
+    af.fast_track_multiplier=1 \
     debug.hwui.use_buffer_age=false \
     debug.renderengine.backend=gles \
     debug.sf.predict_hwc_composition_strategy=0 \
+    log.tag.FrameTracker=E \
+    log.tag.nanohub=W \
+    ro.audio.flinger_standbytime_ms=300 \
     ro.hardware.egl=adreno \
     ro.surface_flinger.max_frame_buffer_acquired_buffers=3
 
 PRODUCT_VENDOR_PROPERTIES += \
     debug.mdpcomp.logs=0 \
+    persist.vendor.fingerprint.type=rear \
     persist.vendor.hwc.mdpcomp.enable=true \
     persist.vendor.hwc.mdpcomp.maxpermixer=4 \
     persist.vendor.hwc.ptor.enable=true \
@@ -40,6 +45,8 @@ PRODUCT_VENDOR_PROPERTIES += \
     persist.vendor.mdpcomp.4k2kSplit=1 \
     persist.vendor.mdpcomp_perfhint=50 \
     persist.vendor.metadata_dynfps.disable=true \
+    vendor.audio_hal.in_period_size=192 \
+    vendor.audio_hal.period_size=320 \
     vendor.rild.libpath=/vendor/lib64/libril-qc-qmi-1.so \
     ro.hardware.sensors=nanohub
 
@@ -60,6 +67,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.telephony.call_ring.multiple=0 \
     ro.telephony.default_cdma_sub=0 \
     ro.telephony.default_network=10 \
+    ro.telephony.legacy_ims_internet_merge=true \
     ro.use_data_netmgrd=true \
     telephony.lteOnCdmaDevice=1
 
@@ -75,6 +83,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/non_ab_device.mk)
 PRODUCT_PACKAGES += \
     fstab.angler \
     init.angler.diag.rc \
+    init.angler.power.sh \
     init.angler.rc \
     init.angler.root.rc \
     init.angler.sensorhub.rc \
@@ -88,6 +97,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.camera.front.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.camera.full.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.full.xml \
     frameworks/native/data/etc/android.hardware.camera.raw.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.raw.xml \
+    frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml \
     frameworks/native/data/etc/android.hardware.sensor.barometer.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.barometer.xml \
     frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.gyroscope.xml \
     frameworks/native/data/etc/android.hardware.sensor.hifi_sensors.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.hifi_sensors.xml \
@@ -104,6 +114,17 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.passpoint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.passpoint.xml \
     frameworks/native/data/etc/android.hardware.wifi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.xml
 
+# GateKeeper HIDL wrapper for the stock msm8994 legacy HAL.
+PRODUCT_PACKAGES += \
+    android.hardware.gatekeeper@1.0-impl \
+    android.hardware.gatekeeper@1.0-service \
+    android.hardware.gatekeeper@1.0.vendor
+
+# The stock Angler FPC module implements the legacy fingerprint HAL. Expose it
+# to the Android 15 biometric framework through LineageOS' AIDL bridge.
+PRODUCT_PACKAGES += \
+    android.hardware.biometrics.fingerprint-service.lineage
+
 # Keymaster is required before file-encrypted /data can be initialized.
 PRODUCT_PACKAGES += \
     android.hardware.keymaster@3.0-impl \
@@ -114,15 +135,23 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     AnglerCarrierConfigImsOverlay \
     AnglerFrameworkImsOverlay \
+    AnglerPhhImsOverlay \
     AnglerTelephonyImsOverlay \
     PhhIms \
     android.hardware.radio@1.4-service.legacy \
     android.hardware.radio.config@1.1-service.angler \
     angler_netmgr_config_compat \
+    angler_netmgr_ndc_wrapper \
+    angler_netmgr_iptables_wrapper \
+    angler_netmgr_ip6tables_wrapper \
+    angler_netmgr_tc_wrapper \
+    angler_netmgr_ip_wrapper \
+    libangler_dsi_netctrl_compat \
     libangler_peripheral_refbase_compat \
     librmnetctl
 
 PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/permissions/privapp-permissions-me.phh.ims.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/privapp-permissions-me.phh.ims.xml \
     $(LOCAL_PATH)/configs/qti_whitelist.xml:system/etc/sysconfig/qti_whitelist.xml \
     $(LOCAL_PATH)/rootdir/bin/init.mcfg.sh:$(TARGET_COPY_OUT_VENDOR)/bin/init.mcfg.sh \
     $(LOCAL_PATH)/rootdir/bin/init.radio.sh:$(TARGET_COPY_OUT_VENDOR)/bin/init.radio.sh
@@ -160,6 +189,12 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl-angler \
     android.hardware.health@2.1-impl-angler.recovery \
     android.hardware.health@2.1-service
+
+# Power. The device-local AIDL service prevents Android 15 audio from waiting
+# five seconds for a missing IPower/default instance. It deliberately leaves
+# Angler's already configured interactive governor untouched.
+PRODUCT_PACKAGES += \
+    android.hardware.power-service.angler
 
 # Audio
 PRODUCT_SYSTEM_PROPERTIES += \
@@ -256,7 +291,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/gps.conf:$(TARGET_COPY_OUT_SYSTEM)/etc/gps.conf \
     $(LOCAL_PATH)/configs/msm_irqbalance.conf:$(TARGET_COPY_OUT_VENDOR)/etc/msm_irqbalance.conf \
     $(LOCAL_PATH)/configs/sec_config:$(TARGET_COPY_OUT_VENDOR)/etc/sec_config \
-    $(LOCAL_PATH)/configs/thermal-engine-angler.conf:$(TARGET_COPY_OUT_SYSTEM)/etc/thermal-engine.conf
+    $(LOCAL_PATH)/configs/thermal-engine-angler.conf:$(TARGET_COPY_OUT_VENDOR)/etc/thermal-engine.conf
 
 # BCM4358 firmware calibration and supplicant overlays
 PRODUCT_PACKAGES += \

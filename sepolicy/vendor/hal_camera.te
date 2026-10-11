@@ -1,0 +1,13 @@
+typeattribute hal_camera_default data_between_core_and_vendor_violators;
+
+# Camera provider imports framework-owned preview buffers through the legacy
+# passthrough mapper. This also permits the modern allocator probe to fail
+# cleanly before libui falls back to mapper 2.1.
+hal_client_domain(hal_camera_default, hal_graphics_allocator)
+
+# Capture requests import release fences created by the hardware composer.
+allow hal_camera_default hal_graphics_composer_default:fd use;
+
+allow hal_camera camera_data_file:dir search;
+allow hal_camera camera_data_file:sock_file write;
+allow hal_camera mm_qcamerad:unix_dgram_socket sendto;

@@ -1,0 +1,16 @@
+# Angler's passthrough nanohub HAL runs in system_server and talks directly to
+# the sensor-hub character devices. This matches the official AOSP Angler
+# policy in android-8.1.0_r52 and the working LineageOS 17.1 tree.
+allow system_server sensors_device:chr_file rw_file_perms;
+
+# The nanohub implementation is loaded into system_server on Angler.
+# Exempt only this legacy in-process HAL host from the Treble data split; the
+# concrete file access remains restricted to angler_sensor_data_file below.
+typeattribute system_server data_between_core_and_vendor_violators;
+typeattribute system_server system_writes_vendor_properties_violators;
+allow system_server angler_sensor_data_file:dir create_dir_perms;
+allow system_server angler_sensor_data_file:file create_file_perms;
+allow system_server persist_file:dir search;
+allow system_server angler_persist_sensor_file:file r_file_perms;
+allow system_server sysfs_angler_compass_calibration:file r_file_perms;
+set_prop(system_server, angler_contexthub_prop)

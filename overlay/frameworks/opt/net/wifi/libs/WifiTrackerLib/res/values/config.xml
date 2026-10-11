@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<resources>
+    <!-- Userdebug builds are used as daily builds on Angler; keep normal Wi-Fi log volume. -->
+    <bool name="wifitrackerlib_enable_verbose_logging_for_userdebug">false</bool>
+</resources>

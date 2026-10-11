@@ -1,0 +1,24 @@
+# Stock qseecomd drops privileges after opening its secure-world resources.
+allow tee self:capability { setuid setgid sys_rawio };
+
+allow tee block_device:dir { getattr search };
+allow tee drm_block_device:blk_file rw_file_perms;
+allowxperm tee drm_block_device:blk_file ioctl { MMC_IOC_CMD };
+allow tee ssd_block_device:blk_file rw_file_perms;
+
+r_dir_file(tee, firmware_file)
+
+# The stock qseecomd directory walker opens every parent of
+# /data/vendor_de/<user>/fpdata before accessing the already confined
+# fingerprint_vendor_data_file directory.
+allow tee system_data_root_file:dir r_dir_perms;
+allow tee vendor_userdir_file:dir r_dir_perms;
+allow tee vendor_data_file:dir r_dir_perms;
+
+allow tee persist_file:dir r_dir_perms;
+allow tee persist_data_file:dir create_dir_perms;
+allow tee persist_data_file:file create_file_perms;
+allow tee persist_drm_file:dir rw_dir_perms;
+allow tee persist_drm_file:file create_file_perms;
+
+set_prop(tee, vendor_tee_listener_prop)

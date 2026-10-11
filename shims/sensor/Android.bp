@@ -7,6 +7,9 @@ cc_library_shared {
     compile_multilib: "both",
     srcs: ["SensorManagerLegacy.cpp"],
     shared_libs: [
+        "libbinder",
+        "libdl",
+        "liblog",
         "libsensor",
         "libutils",
     ],

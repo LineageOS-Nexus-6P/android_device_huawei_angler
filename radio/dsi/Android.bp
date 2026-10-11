@@ -1,0 +1,15 @@
+cc_library_shared {
+    name: "libangler_dsi_netctrl_compat",
+    srcs: ["DsiNetctrlCompat.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    compile_multilib: "64",
+    shared_libs: [
+        "libdl",
+        "liblog",
+    ],
+    vendor: true,
+}

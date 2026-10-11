@@ -1,0 +1,16 @@
+# The stock ACDB loader selects /vendor/etc/acdbdata/angler through the
+# persist.audio.product.identify property and reads the SoC platform name.
+get_prop(hal_audio_default, angler_audio_legacy_prop)
+allow hal_audio_default sysfs_angler_socinfo:dir r_dir_perms;
+allow hal_audio_default sysfs_angler_socinfo:file r_file_perms;
+
+# The stock Angler audio calibration loader reads its data from /persist/audio.
+allow hal_audio_default persist_file:dir search;
+allow hal_audio_default persist_audio_file:dir search;
+allow hal_audio_default persist_audio_file:file r_file_perms;
+
+# libaudiohal checks the AIDL Power HAL through the vendor binder context.
+allow hal_audio_default angler_power_vndservice:service_manager find;
+
+# The legacy audio stack probes the HIDL Power HAL before its AIDL fallback.
+hal_client_domain(hal_audio_default, hal_power)

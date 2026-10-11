@@ -1,0 +1,27 @@
+type angler_power_init, domain;
+type angler_power_init_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(angler_power_init)
+
+# The one-shot script uses the vendor shell and toybox applets while it
+# initializes the two cpufreq policies.
+allow angler_power_init vendor_shell_exec:file rx_file_perms;
+allow angler_power_init vendor_toolbox_exec:file rx_file_perms;
+
+# Traverse the legacy sysfs tree, but write only the explicitly labelled CPU,
+# thermal and BCL controls used by this short-lived boot domain.
+allow angler_power_init sysfs:dir r_dir_perms;
+allow angler_power_init sysfs_devices_system_cpu:dir r_dir_perms;
+allow angler_power_init sysfs_devices_system_cpu:file { setattr rw_file_perms };
+allow angler_power_init proc:dir r_dir_perms;
+allow angler_power_init sysfs_angler_power:dir r_dir_perms;
+allow angler_power_init sysfs_angler_power:file rw_file_perms;
+allow angler_power_init sysfs_thermal:dir search;
+allow angler_power_init proc_angler_sched:file rw_file_perms;
+
+# The interactive governor creates new sysfs nodes when CPU4 first comes up;
+# restorecon assigns their normal CPU labels before Android starts scheduling
+# top-app work on the A57 cluster.
+allow angler_power_init sysfs:{ dir file lnk_file } relabelfrom;
+allow angler_power_init sysfs_devices_system_cpu:{ dir file lnk_file } relabelto;
+allow angler_power_init file_contexts_file:file r_file_perms;

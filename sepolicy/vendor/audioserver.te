@@ -1,0 +1,3 @@
+# Stock Angler QCRIL changes call state through AudioFlinger and receives
+# binder callbacks while the voice session is being routed.
+binder_call(audioserver, rild)

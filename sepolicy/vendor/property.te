@@ -1,0 +1,29 @@
+# Legacy Qualcomm TEE listener readiness shared by qseecomd and Keymaster.
+vendor_restricted_prop(vendor_tee_listener_prop)
+
+# Source-built msm8994 HWC state, migrated from the pre-Treble hw.cabl.yuv
+# system property into the vendor namespace.
+vendor_restricted_prop(angler_display_prop)
+
+# Legacy nanohub lid state is written by the HAL hosted in system_server.
+# It must remain public because the writer is a core-domain process.
+vendor_public_prop(angler_contexthub_prop)
+
+# Stock msm8994 radio blobs and the platform telephony process still exchange
+# state through pre-Treble Qualcomm property names.  Keep the finite namespace
+# vendor-owned, but expose its type to the platform radio domain.
+vendor_public_prop(angler_radio_legacy_prop)
+
+# Stock Angler ACDB uses this pre-Treble property to select the calibration
+# directory. Keep the single legacy name vendor-owned instead of granting the
+# audio HAL access to Android's complete system audio property namespace.
+vendor_public_prop(angler_audio_legacy_prop)
+
+# Stock perfd probes these pre-Treble read-only Qualcomm tuning properties.
+# Keep the finite namespace vendor-owned instead of granting access to every
+# unlabelled system property.
+vendor_public_prop(angler_perfd_legacy_prop)
+
+# Pre-Treble Qualcomm IMS daemons exchange readiness and logging state through
+# these legacy properties. Keep the finite namespaces accessible to telephony.
+vendor_public_prop(angler_ims_legacy_prop)

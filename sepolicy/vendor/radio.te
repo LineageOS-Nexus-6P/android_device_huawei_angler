@@ -1,0 +1,5 @@
+# Telephony writes persist.radio.* while applying subscription state.  Angler
+# is a non-Treble device, so scope the platform radio domain into Android's
+# existing legacy exception for system processes that write vendor properties.
+typeattribute radio system_writes_vendor_properties_violators;
+set_prop(radio, angler_radio_legacy_prop)

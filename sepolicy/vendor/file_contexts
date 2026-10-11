@@ -1,7 +1,109 @@
 # Angler vendor file labels are added only from a proven service or enforcing
 # AVC during the subsystem-specific bring-up stages.
 
-# BOARD_ROOT_EXTRA_FOLDERS places these empty mountpoints in the system image.
-# Keep their build-time label generic until runtime AVCs justify dedicated types.
-/firmware                  u:object_r:rootfs:s0
-/persist                   u:object_r:rootfs:s0
+# zram is formatted and enabled by fs_mgr during early boot.
+/dev/block/zram0            u:object_r:swap_block_device:s0
+
+# Qualcomm modem and QMI transport.
+/dev/diag                   u:object_r:diag_device:s0
+/dev/dpl_ctrl               u:object_r:dpl_device:s0
+/dev/rmnet_ctrl[0-9]*       u:object_r:rmnet_device:s0
+/dev/smdcntl[0-9]+          u:object_r:radio_device:s0
+/dev/smem_log               u:object_r:shared_log_device:s0
+/dev/subsys_modem           u:object_r:subsys_modem_device:s0
+/dev/ttyHS0                 u:object_r:hci_attach_dev:s0
+/dev/msm_thermal_query      u:object_r:thermal_engine_device:s0
+/dev/socket/qmux_audio(/.*)? u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_gps(/.*)?  u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_radio(/.*)? u:object_r:qmuxd_socket:s0
+/dev/socket/netmgr(/.*)?    u:object_r:netmgrd_socket:s0
+/dev/socket/ims_qmid        u:object_r:ims_socket:s0
+/dev/socket/ims_datad       u:object_r:ims_socket:s0
+/dev/socket/thermal-send-client         u:object_r:thermald_socket:s0
+/dev/socket/thermal-recv-client         u:object_r:thermald_socket:s0
+/dev/socket/thermal-recv-passive-client u:object_r:thermald_socket:s0
+/data/vendor/netmgr(/.*)?   u:object_r:netmgrd_data_file:s0
+/data/misc/perfd(/.*)?      u:object_r:angler_perfd_data_file:s0
+/data/system/perfd(/.*)?    u:object_r:angler_perfd_data_file:s0
+
+# Qualcomm audio calibration and runtime calibration devices.
+/dev/msm_audio_cal          u:object_r:audio_device:s0
+/dev/msm_rtac               u:object_r:audio_device:s0
+
+# Qualcomm camera media-controller nodes.
+/dev/jpeg[0-9]+             u:object_r:camera_device:s0
+/dev/media([0-9])+          u:object_r:camera_device:s0
+/dev/v4l-subdev[0-9]+       u:object_r:video_device:s0
+
+# Angler sensor-hub nodes. The nanohub HAL is loaded into system_server.
+/dev/nanohub                u:object_r:sensors_device:s0
+/dev/nanohub_comms          u:object_r:sensors_device:s0
+/data/vendor/sensor(/.*)?   u:object_r:angler_sensor_data_file:s0
+
+# Qualcomm TrustZone interface used by keymaster and qseecomd.
+/dev/qseecom               u:object_r:tee_device:s0
+/dev/kgsl                  u:object_r:gpu_device:s0
+/dev/kgsl-3d0              u:object_r:gpu_device:s0
+/dev/block/mmcblk0          u:object_r:root_block_device:s0
+/dev/block/mmcblk0rpmb      u:object_r:drm_block_device:s0
+/dev/block/platform/soc\.0/f9824900\.sdhci/by-name/persist u:object_r:persist_block_device:s0
+/dev/block/platform/soc\.0/f9824900\.sdhci/by-name/ssd     u:object_r:ssd_block_device:s0
+/dev/block/platform/soc\.0/f9824900\.sdhci/by-name/(fsc|fsg|modem|modemst1|modemst2) u:object_r:modem_block_device:s0
+/vendor/bin/qseecomd        u:object_r:tee_exec:s0
+/vendor/bin/mm-qcamera-daemon u:object_r:mm_qcamerad_exec:s0
+/vendor/bin/init\.radio\.sh u:object_r:angler_radio_init_exec:s0
+/vendor/bin/init\.mcfg\.sh u:object_r:angler_radio_init_exec:s0
+/vendor/bin/init\.angler\.power\.sh u:object_r:angler_power_init_exec:s0
+/vendor/bin/irsc_util       u:object_r:irsc_util_exec:s0
+/vendor/bin/hw/android\.hardware\.radio\.config@1\.1-service\.angler u:object_r:hal_radio_config_default_exec:s0
+/vendor/bin/netmgrd         u:object_r:netmgrd_exec:s0
+/vendor/bin/imsqmidaemon    u:object_r:ims_exec:s0
+/vendor/bin/imsdatadaemon   u:object_r:ims_exec:s0
+/vendor/bin/pm-proxy        u:object_r:per_proxy_exec:s0
+/vendor/bin/pm-service      u:object_r:per_mgr_exec:s0
+/vendor/bin/qmuxd           u:object_r:qmuxd_exec:s0
+/vendor/bin/rmt_storage     u:object_r:rmt_storage_exec:s0
+/vendor/bin/thermal-engine  u:object_r:thermald_exec:s0
+/vendor/bin/perfd           u:object_r:angler_perfd_exec:s0
+/vendor/bin/hw/android\.hardware\.power-service\.angler u:object_r:hal_power_default_exec:s0
+/vendor/bin/hw/android\.hardware\.light@2\.0-service\.angler u:object_r:hal_light_default_exec:s0
+/vendor/bin/hw/android\.hardware\.biometrics\.fingerprint-service\.lineage u:object_r:hal_fingerprint_default_exec:s0
+
+# Stock firmware and TrustZone persistent storage.
+/firmware(/.*)?             u:object_r:firmware_file:s0
+/persist(/.*)?              u:object_r:persist_file:s0
+/persist/audio(/.*)?        u:object_r:persist_audio_file:s0
+/persist/sensorcal\.json    u:object_r:angler_persist_sensor_file:s0
+/persist/data(/.*)?         u:object_r:persist_data_file:s0
+/persist/data/sfs(/.*)?     u:object_r:persist_drm_file:s0
+/persist/data/tz(/.*)?      u:object_r:persist_drm_file:s0
+
+# ADSP loader needed before the WCD9330 SLIMbus codec can enumerate.
+/sys/kernel/boot_adsp/boot  u:object_r:sysfs_boot_adsp:s0
+/sys/bus/msm_subsys(/.*)?   u:object_r:sysfs_msm_subsys:s0
+/sys/devices/soc\.0/\w+\.qcom,\w+/subsys[0-9]+/name   u:object_r:sysfs_msm_subsys:s0
+/sys/devices/virtual/smdpkt/smdcntl[0-9]+/open_timeout u:object_r:sysfs_smd_open_timeout:s0
+/sys/devices/bt_bcm4358\.[0-9]+/rfkill/rfkill0/state u:object_r:sysfs_bluetooth_writable:s0
+
+# Legacy MDSS framebuffer information used by gralloc and hwcomposer.
+/sys/devices/virtual/graphics/fb[0-1]/msm_.*        u:object_r:sysfs_hal_gralloc:s0
+/sys/devices/virtual/graphics/fb[0-1](/.*)?       u:object_r:sysfs_graphics_comp:s0
+/sys/devices/soc\.0/fd900000\.qcom,mdss_mdp/caps u:object_r:sysfs_hal_gralloc:s0
+
+# Legacy Adreno dependencies are loaded in-process by SurfaceFlinger.
+/(vendor|system/vendor)/lib(64)?/libadreno_utils\.so u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libgsl\.so          u:object_r:same_process_hal_file:s0
+# libGLESv2_adreno loads this compiler library in the SurfaceFlinger process.
+/(vendor|system/vendor)/lib(64)?/libllvm-glnext\.so u:object_r:same_process_hal_file:s0
+# The legacy gralloc module is loaded directly into SurfaceFlinger.
+/(vendor|system/vendor)/lib(64)?/hw/gralloc\.msm8994\.so u:object_r:same_process_hal_file:s0
+# The legacy sensors passthrough implementation is loaded by system_server.
+/(vendor|system/vendor)/lib(64)?/hw/android\.hardware\.sensors@1\.0-impl\.so u:object_r:same_process_hal_file:s0
+# Its Angler nanohub module and private connection library share that process.
+/(vendor|system/vendor)/lib(64)?/hw/sensors\.nanohub\.so u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libhubconnection\.so u:object_r:same_process_hal_file:s0
+# Its private dependency chain is loaded into the same process.
+/(vendor|system/vendor)/lib(64)?/libmemalloc\.so   u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libqdMetaData\.so u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libqservice\.so   u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libqdutils\.so    u:object_r:same_process_hal_file:s0

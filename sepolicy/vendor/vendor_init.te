@@ -1,0 +1,15 @@
+# init commands imported from the vendor rc file execute as vendor_init.
+# Create /data/misc/camera with the label used by the legacy camera daemon.
+typeattribute vendor_init data_between_core_and_vendor_violators;
+
+allow vendor_init system_data_file:dir { write add_name };
+allow vendor_init camera_data_file:dir create_dir_perms;
+
+# qseecomd runs as system and enumerates this directory before opening the
+# per-user FPC database. Android 15 creates the parent as 0551, so the Angler
+# post-fs-data action must be able to restore directory-read permission.
+allow vendor_init vendor_userdir_file:dir setattr;
+
+# Expose only the labelled Adreno minimum-frequency node to the Power HAL's
+# system group; the maximum remains owned by the thermal stack.
+allow vendor_init sysfs_angler_power:file setattr;

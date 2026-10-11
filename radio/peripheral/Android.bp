@@ -1,0 +1,36 @@
+cc_library_shared {
+    name: "libangler_peripheral_refbase_compat",
+    vendor: true,
+    srcs: ["RefBaseCompat.cpp"],
+    shared_libs: [
+        "libdl",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+// The Oreo libperipheral_client embeds an Oreo-sized Parcel on its stack.
+// Android 15's larger Parcel overwrites that frame and trips stack-protector
+// as soon as QCRIL registers.  Rebuild only this Binder boundary against the
+// current headers while preserving Qualcomm's C ABI and Binder wire format.
+cc_library_shared {
+    name: "libperipheral_client",
+    stem: "libperipheral_client",
+    vendor: true,
+    compile_multilib: "both",
+    srcs: ["PeripheralClientCompat.cpp"],
+    shared_libs: [
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DDO_NOT_CHECK_MANUAL_BINDER_INTERFACES",
+    ],
+}

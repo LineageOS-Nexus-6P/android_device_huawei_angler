@@ -1,0 +1,28 @@
+type angler_perfd, domain;
+type angler_perfd_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(angler_perfd)
+
+allow angler_perfd angler_perfd_data_file:dir create_dir_perms;
+allow angler_perfd angler_perfd_data_file:file create_file_perms;
+allow angler_perfd angler_perfd_data_file:sock_file create_file_perms;
+
+allow angler_perfd sysfs:dir r_dir_perms;
+allow angler_perfd sysfs_devices_system_cpu:dir r_dir_perms;
+allow angler_perfd sysfs_devices_system_cpu:file rw_file_perms;
+allow angler_perfd sysfs_angler_power:dir r_dir_perms;
+allow angler_perfd sysfs_angler_power:file rw_file_perms;
+allow angler_perfd sysfs_thermal:dir r_dir_perms;
+allow angler_perfd sysfs_thermal:file rw_file_perms;
+allow angler_perfd proc_angler_sched:file rw_file_perms;
+allow angler_perfd sysfs_angler_socinfo:dir r_dir_perms;
+allow angler_perfd sysfs_angler_socinfo:file r_file_perms;
+
+get_prop(angler_perfd, angler_perfd_legacy_prop)
+
+# The stock daemon checks whether client processes still exist before
+# releasing their timed locks.
+dontaudit angler_perfd self:capability kill;
+# The Oreo daemon probes a privileged scheduler feature which is optional on
+# this kernel. Denial is harmless; suppress only this capability probe.
+dontaudit angler_perfd self:capability sys_admin;

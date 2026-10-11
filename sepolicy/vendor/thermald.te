@@ -1,0 +1,45 @@
+type thermald, domain;
+type thermald_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(thermald)
+
+# Required by the stock Qualcomm daemon while applying kernel thermal limits.
+allow thermald self:capability sys_admin;
+
+# The Angler blob traverses a few unlabeled legacy sysfs parents while
+# discovering CPU/GPU thermal controls.
+r_dir_file(thermald, sysfs)
+r_dir_file(thermald, sysfs_angler_socinfo)
+get_prop(thermald, angler_radio_legacy_prop)
+
+# Stock Qualcomm thermal query and shared logging devices.
+allow thermald thermal_engine_device:chr_file rw_file_perms;
+allow thermald shared_log_device:chr_file rw_file_perms;
+
+# CPU, GPU, BCL, charger and thermal-zone controls used by the stock Angler
+# thermal-engine configuration.
+allow thermald sysfs_devices_system_cpu:dir r_dir_perms;
+allow thermald sysfs_devices_system_cpu:file rw_file_perms;
+allow thermald sysfs_thermal:dir r_dir_perms;
+allow thermald sysfs_thermal:file rw_file_perms;
+allow thermald sysfs_thermal:lnk_file r_file_perms;
+allow thermald sysfs_batteryinfo:dir search;
+allow thermald sysfs_angler_power:dir r_dir_perms;
+allow thermald sysfs_angler_power:file rw_file_perms;
+
+# Modem temperature queries use the same legacy QMUX transport as the radio.
+allow thermald self:socket create_socket_perms;
+allowxperm thermald self:socket ioctl msm_sock_ipc_ioctls;
+angler_qmux_socket(thermald)
+
+# Local client sockets declared by init.
+type_transition thermald socket_device:sock_file thermald_socket;
+allow thermald socket_device:dir w_dir_perms;
+allow thermald thermald_socket:sock_file create_file_perms;
+
+allow thermald sysfs_msm_subsys:dir r_dir_perms;
+allow thermald sysfs_msm_subsys:file r_file_perms;
+allow thermald sysfs_msm_subsys:lnk_file r_file_perms;
+
+# The final thermal-engine policy stage requests shutdown through sys.powerctl.
+set_prop(thermald, powerctl_prop)

@@ -1,0 +1,7 @@
+#####################################
+# angler_qmux_socket(clientdomain)
+define(`angler_qmux_socket', `
+allow $1 qmuxd_socket:dir rw_dir_perms;
+allow $1 qmuxd_socket:sock_file create_file_perms;
+unix_socket_connect($1, qmuxd, qmuxd)
+')

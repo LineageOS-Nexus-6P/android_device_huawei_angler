@@ -1,0 +1,17 @@
+// SPDX-FileCopyrightText: 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+
+cc_library_static {
+    name: "libsensorlist_angler",
+    vendor: true,
+    srcs: ["sensorlist.cpp"],
+    include_dirs: [
+        "device/google/contexthub/firmware/os/inc",
+        "device/google/contexthub/sensorhal",
+    ],
+    header_libs: ["libhardware_headers"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}

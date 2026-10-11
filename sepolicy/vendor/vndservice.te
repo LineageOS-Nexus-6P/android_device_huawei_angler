@@ -1,0 +1,2 @@
+type angler_power_vndservice, vndservice_manager_type;
+type qdisplay_service, vndservice_manager_type;

@@ -1,2 +1,1 @@
-# Angler vendor service labels are added only when the matching service is
-# installed and registered.
+vendor.qcom.PeripheralManager u:object_r:per_mgr_service:s0

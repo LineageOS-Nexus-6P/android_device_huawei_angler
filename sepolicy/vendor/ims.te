@@ -1,0 +1,27 @@
+type ims, domain;
+type ims_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(ims)
+net_domain(ims)
+
+angler_qmux_socket(ims)
+wakelock_use(ims)
+get_prop(ims, angler_ims_legacy_prop)
+set_prop(ims, angler_ims_legacy_prop)
+
+allow ims ims_socket:sock_file write;
+allow ims self:capability { net_admin net_bind_service net_raw };
+allow ims self:netlink_route_socket create_socket_perms_no_ioctl;
+allow ims self:netlink_socket create_socket_perms_no_ioctl;
+allow ims self:socket create_socket_perms;
+allow ims self:udp_socket create_socket_perms;
+allowxperm ims self:socket ioctl msm_sock_ipc_ioctls;
+allowxperm ims self:udp_socket ioctl priv_sock_ioctls;
+
+allow ims sysfs_msm_subsys:dir r_dir_perms;
+allow ims sysfs_msm_subsys:lnk_file r_file_perms;
+allow ims sysfs_msm_subsys:file r_file_perms;
+
+userdebug_or_eng(`
+    allow ims diag_device:chr_file rw_file_perms;
+')

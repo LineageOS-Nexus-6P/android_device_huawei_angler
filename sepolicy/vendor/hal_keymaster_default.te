@@ -1,0 +1,2 @@
+# The stock MSM8994 Keymaster waits for qseecomd's listener-ready property.
+get_prop(hal_keymaster_default, vendor_tee_listener_prop)

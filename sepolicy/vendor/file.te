@@ -1,0 +1,41 @@
+type firmware_file, fs_type, contextmount_type;
+
+type persist_file, file_type;
+type persist_audio_file, file_type;
+type persist_data_file, file_type;
+type persist_drm_file, file_type;
+
+# Qualcomm QMI transport and mobile-data sockets.
+type qmuxd_socket, file_type;
+type netmgrd_socket, file_type;
+type netmgrd_data_file, file_type, data_file_type;
+type ims_socket, file_type;
+type thermald_socket, file_type;
+type sysfs_smd_open_timeout, sysfs_type, fs_type;
+type sysfs_msm_subsys, sysfs_type, fs_type;
+type sysfs_angler_socinfo, sysfs_type, fs_type;
+type sysfs_angler_fingerprint, sysfs_type, fs_type;
+
+# Sensor calibration is accessed by the in-process Angler nanohub HAL.
+type angler_sensor_data_file, file_type, data_file_type;
+type angler_persist_sensor_file, file_type;
+
+# Factory compass compensation exported by the battery charger driver.
+type sysfs_angler_compass_calibration, fs_type, sysfs_type;
+
+# vm.swappiness is configured by vendor init for the device zram policy.
+type proc_swappiness, fs_type, proc_type;
+
+# Stock Qualcomm performance daemon and its local client socket/state.
+type angler_perfd_data_file, file_type, data_file_type;
+
+# ADSP loader trigger used after qseecomd registers its secure listeners.
+type sysfs_boot_adsp, sysfs_type, fs_type;
+
+# Legacy MDSS framebuffer sysfs nodes consumed by the display HALs.
+type sysfs_hal_gralloc, sysfs_type, fs_type;
+type sysfs_graphics_comp, sysfs_type, fs_type;
+
+# Legacy Angler controls used only while init brings the A57 cluster online.
+type sysfs_angler_power, sysfs_type, fs_type;
+type proc_angler_sched, proc_type, fs_type;

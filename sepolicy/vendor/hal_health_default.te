@@ -1,0 +1,4 @@
+# The health HAL enumerates every power_supply entry. The legacy BCL power
+# supply lives below a parent directory labelled sysfs_thermal; grant only the
+# directory traversal needed to reach its sysfs_batteryinfo subtree.
+allow hal_health_default sysfs_thermal:dir search;

@@ -148,8 +148,13 @@ RS_FLOOR_SHIM_FIXUP = (
     'add forwarding RenderScript SC_floorf shim'
 )
 RIL_AUDIO_CALLBACK_SHIM_FIXUP_PATH = 'vendor/lib64/libril-qc-qmi-1.so'
+RIL_DSI_COMPAT_FIXUP_PATH = 'vendor/lib64/libril-qc-qmi-1.so'
 RIL_AUDIO_CALLBACK_SHIM_FIXUP = (
     'forward AudioSystem setErrorCallback to addErrorCallback'
+)
+RIL_DSI_COMPAT_FIXUP = (
+    'defer address-backed completion outside the stock DSI callback lock when '
+    'QCRIL receives WDS_CONNECTED instead of the older NET_IS_CONN event'
 )
 PERIPHERAL_REFBASE_SHIM_FIXUP_PATH = 'vendor/bin/pm-service'
 PERIPHERAL_REFBASE_SHIM_FIXUP = (
@@ -188,6 +193,10 @@ ISP_MUTEX_FIXUP_PATH = 'vendor/lib/libmmcamera2_isp_modules.so'
 ISP_MUTEX_FIXUP = (
     'move CBNZ before mutex destruction for Android P FORTIFY; '
     'PixelBoot provenance 1b95fec2e5f4e5c2432e5885d5ef705e82ecb245'
+)
+THERMAL_CONFIG_PATH_FIXUP = (
+    'read the thermal policy from /vendor/etc; Android 15 neverallows vendor '
+    'daemons from reading ordinary /system files'
 )
 Q3A64_AUDIT_ONLY_PATH = 'vendor/lib64/libmmcamera2_q3a_core.so'
 Q3A64_AUDIT_ONLY_PROVENANCE = (
@@ -354,6 +363,10 @@ def _legacy_liblog_fixup(path):
 
 
 blob_fixups = {
+    'vendor/bin/thermal-engine': blob_fixup().binary_regex_replace(
+        b'/system/etc/thermal-engine.conf',
+        b'/vendor/etc/thermal-engine.conf',
+    ),
     tuple(
         sorted(LIBSTDCXX_FIXUP_PATHS - {FACEPROC_SONAME_FIXUP_PATH})
     ): blob_fixup().replace_needed(
@@ -403,7 +416,9 @@ blob_fixups = {
         blob_fixup().add_needed('librs_legacy_math_shim.so')
     ),
     RIL_AUDIO_CALLBACK_SHIM_FIXUP_PATH: (
-        blob_fixup().add_needed('libaudioclient_legacy_shim.so')
+        blob_fixup()
+        .add_needed('libaudioclient_legacy_shim.so')
+        .add_needed('libangler_dsi_netctrl_compat.so')
     ),
     PERIPHERAL_REFBASE_SHIM_FIXUP_PATH: (
         blob_fixup().add_needed('libangler_peripheral_refbase_compat.so')
@@ -559,6 +574,8 @@ def write_blob_metadata(_ctx: PostprocessCtx):
             fixups.append(RS_FLOOR_SHIM_FIXUP)
         if file.dst == RIL_AUDIO_CALLBACK_SHIM_FIXUP_PATH:
             fixups.append(RIL_AUDIO_CALLBACK_SHIM_FIXUP)
+        if file.dst == RIL_DSI_COMPAT_FIXUP_PATH:
+            fixups.append(RIL_DSI_COMPAT_FIXUP)
         if file.dst == PERIPHERAL_REFBASE_SHIM_FIXUP_PATH:
             fixups.append(PERIPHERAL_REFBASE_SHIM_FIXUP)
         if file.dst in SENSOR_EVENTQUEUE_SHIM_FIXUP_PATHS:
@@ -572,6 +589,8 @@ def write_blob_metadata(_ctx: PostprocessCtx):
             fixups.append(WIDEVINE_PROTOBUF_FIXUP)
         if file.dst == ISP_MUTEX_FIXUP_PATH:
             fixups.append(ISP_MUTEX_FIXUP)
+        if file.dst == 'vendor/bin/thermal-engine':
+            fixups.append(THERMAL_CONFIG_PATH_FIXUP)
         if file.dst == Q3A64_AUDIT_ONLY_PATH:
             fixups.append(Q3A64_AUDIT_ONLY_PROVENANCE)
         if file.dst in LIBC_PRIVATE_VERSION_FIXUP_PATHS:

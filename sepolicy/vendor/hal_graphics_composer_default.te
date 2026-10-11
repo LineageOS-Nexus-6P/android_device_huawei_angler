@@ -1,0 +1,25 @@
+# The legacy composer hosts display.qservice over the vendor binder driver.
+vndbinder_use(hal_graphics_composer_default)
+allow hal_graphics_composer_default qdisplay_service:service_manager { add find };
+
+# Legacy HWC listens for framebuffer hotplug events.
+allow hal_graphics_composer_default self:netlink_kobject_uevent_socket { read create bind setopt };
+
+# The msm8994 display stack probes the framebuffer topology during startup.
+allow hal_graphics_composer_default sysfs_hal_gralloc:file r_file_perms;
+allow hal_graphics_composer_default sysfs_graphics_comp:dir r_dir_perms;
+allow hal_graphics_composer_default sysfs_graphics_comp:file r_file_perms;
+allow hal_graphics_composer_default sysfs_graphics_comp:lnk_file r_file_perms;
+
+# The msm8994 HWC polls these legacy properties while composing frames.
+# Match the maintained OnePlus 2 policy so the reads do not generate an AVC
+# on every refresh.
+get_prop(hal_graphics_composer_default, bootanim_system_prop)
+get_prop(hal_graphics_composer_default, angler_display_prop)
+set_prop(hal_graphics_composer_default, angler_display_prop)
+
+# Gralloc reads the same framebuffer topology when its service starts.
+allow hal_graphics_allocator sysfs_hal_gralloc:file r_file_perms;
+allow hal_graphics_allocator sysfs_graphics_comp:dir r_dir_perms;
+allow hal_graphics_allocator sysfs_graphics_comp:file r_file_perms;
+allow hal_graphics_allocator sysfs_graphics_comp:lnk_file r_file_perms;

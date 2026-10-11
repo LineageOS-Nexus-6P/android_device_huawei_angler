@@ -1,0 +1,6 @@
+allow init firmware_file:dir mounton;
+allow init persist_file:dir mounton;
+allow init sysfs_boot_adsp:file write;
+allow init sysfs_wlan_fwpath:file { getattr open read write setattr };
+
+allow vendor_init proc_swappiness:file write;

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Angler has no hardware navigation keys. SystemUI must create the
+         software navigation bar so its edge-back input monitor is attached. -->
+    <bool name="config_showNavigationBar">true</bool>
+
+    <!-- Expose the standard Android navigation modes in Settings. -->
+    <bool name="config_supportSystemNavigationKeys">true</bool>
+
+    <!-- Angler's stock TMD27723 light/proximity tuning. Keep the panel values
+         aligned with Google's device tree instead of using a generic curve. -->
+    <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
+    <bool name="config_automatic_brightness_available">true</bool>
+
+    <integer-array name="config_autoBrightnessLevels">
+        <item>1</item>
+        <item>40</item>
+        <item>100</item>
+        <item>325</item>
+        <item>600</item>
+        <item>1250</item>
+        <item>2200</item>
+        <item>4000</item>
+        <item>10000</item>
+    </integer-array>
+
+    <integer-array name="config_autoBrightnessLcdBacklightValues">
+        <item>11</item>
+        <item>22</item>
+        <item>47</item>
+        <item>61</item>
+        <item>84</item>
+        <item>107</item>
+        <item>154</item>
+        <item>212</item>
+        <item>245</item>
+        <item>255</item>
+    </integer-array>
+
+    <integer name="config_screenBrightnessDim">6</integer>
+    <integer name="config_screenBrightnessDoze">13</integer>
+    <integer name="config_screenBrightnessSettingDefault">72</integer>
+    <integer name="config_screenBrightnessSettingMinimum">4</integer>
+</resources>

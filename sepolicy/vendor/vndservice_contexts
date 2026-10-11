@@ -1,0 +1,2 @@
+android.hardware.power.IPower/default       u:object_r:angler_power_vndservice:s0
+display.qservice                          u:object_r:qdisplay_service:s0

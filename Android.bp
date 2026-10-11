@@ -1,0 +1,44 @@
+filegroup {
+    name: "vnd_angler.txt",
+    srcs: ["bluetooth/vnd_angler.txt"],
+}
+
+// Stock Oreo netmgrd has this path compiled in. Keep its legacy system path
+// while retaining the authoritative configuration on the vendor partition.
+install_symlink {
+    name: "angler_netmgr_config_compat",
+    installed_location: "etc/data/netmgr_config.xml",
+    symlink_target: "/vendor/etc/data/netmgr_config.xml",
+}
+
+// Stock netmgrd invokes these tools by their legacy names. Give only that
+// service a private PATH which resolves them to Android's constrained wrappers.
+install_symlink {
+    name: "angler_netmgr_ndc_wrapper",
+    installed_location: "bin/netmgr-wrapper/ndc",
+    symlink_target: "/system/bin/ndc-wrapper-1.0",
+}
+
+install_symlink {
+    name: "angler_netmgr_iptables_wrapper",
+    installed_location: "bin/netmgr-wrapper/iptables",
+    symlink_target: "/system/bin/iptables-wrapper-1.0",
+}
+
+install_symlink {
+    name: "angler_netmgr_ip6tables_wrapper",
+    installed_location: "bin/netmgr-wrapper/ip6tables",
+    symlink_target: "/system/bin/ip6tables-wrapper-1.0",
+}
+
+install_symlink {
+    name: "angler_netmgr_tc_wrapper",
+    installed_location: "bin/netmgr-wrapper/tc",
+    symlink_target: "/system/bin/tc-wrapper-1.0",
+}
+
+install_symlink {
+    name: "angler_netmgr_ip_wrapper",
+    installed_location: "bin/netmgr-wrapper/ip",
+    symlink_target: "/system/bin/ip-wrapper-1.0",
+}

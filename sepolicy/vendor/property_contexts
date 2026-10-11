@@ -1,2 +1,46 @@
 # Angler vendor property labels are added only with their owning service and
 # an exact property namespace contract.
+
+# Legacy qseecomd and keystore.msm8994 use this pre-Treble property name.
+sys.listeners.registered u:object_r:vendor_tee_listener_prop:s0 exact bool
+vendor.display.cabl.yuv u:object_r:angler_display_prop:s0 exact string
+sensors.contexthub. u:object_r:angler_contexthub_prop:s0 prefix string
+
+# Pre-Treble Qualcomm data/QMI properties consumed by qmuxd, netmgrd and rild.
+net.rmnet_data0.dns1 u:object_r:angler_radio_legacy_prop:s0 exact string
+net.rmnet_data0.dns2 u:object_r:angler_radio_legacy_prop:s0 exact string
+net.rmnet_data0.gw u:object_r:angler_radio_legacy_prop:s0 exact string
+persist.data. u:object_r:angler_radio_legacy_prop:s0 prefix string
+persist.data_ u:object_r:angler_radio_legacy_prop:s0 prefix string
+persist.rmnet. u:object_r:angler_radio_legacy_prop:s0 prefix string
+persist.radio. u:object_r:angler_radio_legacy_prop:s0 prefix string
+persist.qcril. u:object_r:angler_radio_legacy_prop:s0 prefix string
+persist.qcril_ u:object_r:angler_radio_legacy_prop:s0 prefix string
+ro.ril.dtmf_interval u:object_r:angler_radio_legacy_prop:s0 exact string
+ro.ril.svdo u:object_r:angler_radio_legacy_prop:s0 exact string
+ro.ril.svlte1x u:object_r:angler_radio_legacy_prop:s0 exact string
+ro.use_data_netmgrd u:object_r:angler_radio_legacy_prop:s0 exact bool
+
+# Legacy Qualcomm IMS daemon readiness and diagnostics.
+sys.ims. u:object_r:angler_ims_legacy_prop:s0 prefix string
+persist.ims. u:object_r:angler_ims_legacy_prop:s0 prefix string
+
+# Exact stock ACDB directory selector used by libacdbloader.so.
+persist.audio.product.identify u:object_r:angler_audio_legacy_prop:s0 exact string
+persist.audio.dualmic.config u:object_r:angler_audio_legacy_prop:s0 exact string
+persist.audio.fluence.voicecall u:object_r:angler_audio_legacy_prop:s0 exact bool
+persist.audio.fluence.voicecomm u:object_r:angler_audio_legacy_prop:s0 exact bool
+persist.audio.fluence.voicerec u:object_r:angler_audio_legacy_prop:s0 exact bool
+persist.audio.fluence.speaker u:object_r:angler_audio_legacy_prop:s0 exact bool
+persist.audio.in_mmap_delay_micros u:object_r:angler_audio_legacy_prop:s0 exact int
+persist.audio.out_mmap_delay_micros u:object_r:angler_audio_legacy_prop:s0 exact int
+ro.qc.sdk.audio.fluencetype u:object_r:angler_audio_legacy_prop:s0 exact string
+audio.snd_card.open.retries u:object_r:angler_audio_legacy_prop:s0 exact int
+persist.audio.calfile u:object_r:angler_audio_legacy_prop:s0 prefix string
+audio.adm. u:object_r:angler_audio_legacy_prop:s0 prefix string
+audio.spatializer.effect. u:object_r:angler_audio_legacy_prop:s0 prefix string
+
+# Read-only stock Qualcomm performance defaults queried by perfd.
+ro.min_freq_0 u:object_r:angler_perfd_legacy_prop:s0 exact int
+ro.min_freq_4 u:object_r:angler_perfd_legacy_prop:s0 exact int
+ro.qualcomm.perf.cores_online u:object_r:angler_perfd_legacy_prop:s0 exact int
