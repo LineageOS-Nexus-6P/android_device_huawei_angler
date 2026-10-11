@@ -1,15 +1,17 @@
 [
   {
     "repository": "android_kernel_huawei_angler",
-    "target_path": "kernel/huawei/angler"
+    "target_path": "kernel/huawei/angler",
+    "branch": "lineage-22.2"
   },
   {
-    "repository": "android_vendor_huawei",
-    "target_path": "vendor/huawei"
+    "repository": "android_vendor_huawei_angler",
+    "target_path": "vendor/huawei/angler",
+    "branch": "lineage-22.2"
   },
   {
     "repository": "android_packages_apps_PhhIms",
     "target_path": "packages/apps/PhhIms",
-    "branch": "lineage-22.2-angler"
+    "branch": "lineage-22.2"
   }
 ]
