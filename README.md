@@ -1,29 +1,3 @@
-<div align="center">
-
-# LineageOS for Google Nexus 6P
-
-Device configuration, proprietary vendor files, kernel sources, IMS service,
-and platform patches for bringing **LineageOS 22.2** (Android 15) to the
-**Google Nexus 6P** (`angler`).
-
-<p>
-  <img alt="LineageOS 22.2" src="https://img.shields.io/badge/LineageOS-22.2-167C80?style=flat-square&logo=lineageos&logoColor=white">
-  <img alt="Android 15" src="https://img.shields.io/badge/Android-15-3DDC84?style=flat-square&logo=android&logoColor=white">
-  <img alt="Qualcomm Snapdragon 810" src="https://img.shields.io/badge/SoC-Snapdragon%20810-EF2D2D?style=flat-square&logo=qualcomm&logoColor=white">
-  <img alt="Linux kernel 3.10.108" src="https://img.shields.io/badge/Kernel-3.10.108-FCC624?style=flat-square&logo=linux&logoColor=black">
-</p>
-
-<img src="https://fdn2.gsmarena.com/vv/pics/huawei/huawei-nexus-6p-1.jpg" width="420" alt="Google Nexus 6P">
-
-</div>
-
-## Device overview
-
-The Google Nexus 6P is a 2015 Android smartphone manufactured by Huawei. It
-combines a 5.7-inch WQHD AMOLED display with Qualcomm's Snapdragon 810 v2.1
-platform, front-facing stereo speakers, a rear fingerprint sensor, USB Type-C,
-and a 3450 mAh battery.
-
 ## Specifications
 
 | Category | Specification |
@@ -52,27 +26,5 @@ and a 3450 mAh battery.
 | Shipped OS | Android 6.0 Marshmallow |
 | Final official firmware | Android 8.1 Oreo, build `OPM7.181205.001` |
 
-## Project details
-
-| Item | Value |
-|:--|:--|
-| Target platform | LineageOS 22.2 / Android 15 |
-| Build target | `lineage_angler-bp1a-userdebug` |
-| Kernel | Linux 3.10.108 |
-| Architecture | ARM64 |
-
-## Source repositories
-
-| Component | Repository | Branch |
-|:--|:--|:--|
-| Device configuration | [`android_device_huawei_angler`](https://github.com/LineageOS-Nexus-6P/android_device_huawei_angler/tree/lineage-22.2) | `lineage-22.2` |
-| Proprietary vendor files | [`android_vendor_huawei_angler`](https://github.com/LineageOS-Nexus-6P/android_vendor_huawei_angler/tree/lineage-22.2) | `lineage-22.2` |
-| Kernel source | [`android_kernel_huawei_angler`](https://github.com/LineageOS-Nexus-6P/android_kernel_huawei_angler/tree/lineage-22.2) | `lineage-22.2` |
-| PhhIms for Nexus 6P | [`android_packages_apps_PhhIms`](https://github.com/LineageOS-Nexus-6P/android_packages_apps_PhhIms/tree/lineage-22.2) | `lineage-22.2` |
-| Platform patches | [`nexus6p_patches`](https://github.com/LineageOS-Nexus-6P/nexus6p_patches/tree/lineage-22.2) | `lineage-22.2` |
-
----
-
-> [!NOTE]
-> This is an independent, unofficial community project. It is not affiliated
-> with or endorsed by LineageOS, Google, Huawei, or Qualcomm.
+## Device pictures
+<img src="https://fdn2.gsmarena.com/vv/pics/huawei/huawei-nexus-6p-2.jpg">
