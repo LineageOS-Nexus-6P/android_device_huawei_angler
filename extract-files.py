@@ -3,49 +3,11 @@
 # SPDX-FileCopyrightText: 2026 The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 
-import hashlib
 import struct
 from pathlib import Path
 
-from extract_utils.file import File
 from extract_utils.fixups_blob import blob_fixup
 from extract_utils.main import ExtractUtils, ExtractUtilsModule
-from extract_utils.postprocess import PostprocessCtx
-
-
-HUAWEI_LICENSE_PROVENANCE = (
-    'Huawei official driver vendor.img; OPM7.181205.001'
-)
-QUALCOMM_LICENSE_PROVENANCE = (
-    'Qualcomm official driver explicit path; OPM7.181205.001'
-)
-FACTORY_ONLY_LICENSE_PROVENANCE = (
-    'Google factory image exact; differs from Huawei driver package; '
-    'local closure only; OPM7.181205.001'
-)
-QUALCOMM_EXPLICIT_PATHS = {
-    'system/bin/ssr_setup',
-    'system/bin/subsystem_ramdump',
-    'system/etc/permissions/cneapiclient.xml',
-    'system/etc/permissions/qcrilhook.xml',
-}
-FACTORY_ONLY_CLOSURE_PATHS = {
-    'vendor/lib/libaudcal.so',
-    'vendor/lib/libmmcamera_imglib.so',
-    'vendor/lib/libmmcamera_isp_cs_stats46.so',
-    'vendor/lib/libmmcamera_isp_gic46.so',
-    'vendor/lib/libmmcamera_isp_gtm46.so',
-    'vendor/lib/libmmcamera_isp_ihist_stats46.so',
-    'vendor/lib/libmmcamera_isp_pedestal_correct46.so',
-    'vendor/lib/libmmcamera_isp_rs_stats46.so',
-    'vendor/lib/libmmcamera_isp_wb46.so',
-    'vendor/lib/libmmcamera2_imglib_modules.so',
-    'vendor/lib/libmmcamera2_isp_modules.so',
-    'vendor/lib/libmmcamera2_sensor_debug.so',
-    'vendor/lib/libmmcamera2_sensor_modules.so',
-    'vendor/lib/libmmcamera2_stats_modules.so',
-    'vendor/lib64/libaudcal.so',
-}
 LIBSTDCXX_FIXUP = (
     'replace DT_NEEDED libstdc++.so with source-built libstdc++_vendor.so'
 )
@@ -507,151 +469,6 @@ blob_fixups = {
 }
 
 
-def _iter_proprietary_files(path: Path):
-    for raw_line in path.read_text().splitlines():
-        line = raw_line.strip()
-        if line and not line.startswith('#'):
-            yield File(line)
-
-
-def _classify_blob(blob: Path, destination: str):
-    header = blob.read_bytes()[:20]
-    if header.startswith(b'\x7fELF'):
-        elf_class = {1: 'ELF32', 2: 'ELF64'}.get(header[4], 'unknown')
-        byte_order = 'little' if header[5] == 1 else 'big'
-        machine_id = int.from_bytes(header[18:20], byte_order)
-        machine = {
-            40: 'ARM',
-            94: 'Tensilica Xtensa',
-            164: 'Qualcomm Hexagon',
-            183: 'AArch64',
-        }.get(machine_id, f'EM_{machine_id}')
-        kind = 'firmware-ELF' if '/firmware/' in f'/{destination}' else 'ELF'
-        return kind, elf_class, machine
-
-    if '/firmware/' in f'/{destination}':
-        return 'firmware', '', ''
-    if blob.suffix in {'.cfg', '.conf', '.sql', '.txt', '.xml'}:
-        return 'configuration', '', ''
-    return 'data', '', ''
-
-
-def write_blob_metadata(_ctx: PostprocessCtx):
-    device_path = Path(module.device_path)
-    vendor_path = Path(module.vendor_path)
-    proprietary_path = vendor_path / 'proprietary'
-    rows = []
-
-    for file in _iter_proprietary_files(device_path / 'proprietary-files.txt'):
-        blob = proprietary_path / file.dst
-        kind, elf_class, machine = _classify_blob(blob, file.dst)
-        if file.src in QUALCOMM_EXPLICIT_PATHS:
-            license_provenance = QUALCOMM_LICENSE_PROVENANCE
-        elif file.src in FACTORY_ONLY_CLOSURE_PATHS:
-            license_provenance = FACTORY_ONLY_LICENSE_PROVENANCE
-        else:
-            license_provenance = HUAWEI_LICENSE_PROVENANCE
-        fixups = []
-        if file.dst in LIBSTDCXX_FIXUP_PATHS:
-            fixups.append(LIBSTDCXX_FIXUP)
-        if file.dst == FACEPROC_SONAME_FIXUP_PATH:
-            fixups.append(FACEPROC_SONAME_FIXUP)
-        if file.dst in QDUTILS_FIXUP_PATHS:
-            fixups.append(QDUTILS_FIXUP)
-        if file.dst in ART_COMPILER_FIXUP_PATHS:
-            fixups.append(ART_COMPILER_FIXUP)
-        if file.dst in LEGACY_LIBLOG_FIXUP_PATHS:
-            fixups.append(LEGACY_LIBLOG_FIXUP)
-        if file.dst in SCHED_POLICY_FIXUP_PATHS:
-            fixups.append(SCHED_POLICY_FIXUP)
-        if file.dst in CUTILS_STRING_SHIM_FIXUP_PATHS:
-            fixups.append(CUTILS_STRING_SHIM_FIXUP)
-        if file.dst in POWER_MANAGER_SHIM_FIXUP_PATHS:
-            fixups.append(POWER_MANAGER_SHIM_FIXUP)
-        if file.dst in SURFACE_SHIM_FIXUP_PATHS:
-            fixups.append(SURFACE_SHIM_FIXUP)
-        if file.dst == RS_FLOOR_SHIM_FIXUP_PATH:
-            fixups.append(RS_FLOOR_SHIM_FIXUP)
-        if file.dst == RIL_AUDIO_CALLBACK_SHIM_FIXUP_PATH:
-            fixups.append(RIL_AUDIO_CALLBACK_SHIM_FIXUP)
-        if file.dst == RIL_DSI_COMPAT_FIXUP_PATH:
-            fixups.append(RIL_DSI_COMPAT_FIXUP)
-        if file.dst == PERIPHERAL_REFBASE_SHIM_FIXUP_PATH:
-            fixups.append(PERIPHERAL_REFBASE_SHIM_FIXUP)
-        if file.dst in SENSOR_EVENTQUEUE_SHIM_FIXUP_PATHS:
-            fixups.append(SENSOR_EVENTQUEUE_SHIM_FIXUP)
-        if file.dst == CAMERA_SENSOR_THREAD_FIXUP_PATH:
-            fixups.append(CAMERA_SENSOR_THREAD_FIXUP)
-        if file.dst == CAMERA_SENSOR_NDK_BRIDGE_FIXUP_PATH:
-            fixups.append(CAMERA_SENSOR_NDK_BRIDGE_FIXUP)
-            fixups.append(CAMERA_AF_LIFETIME_FIXUP)
-        if file.dst in WIDEVINE_PROTOBUF_FIXUP_PATHS:
-            fixups.append(WIDEVINE_PROTOBUF_FIXUP)
-        if file.dst == ISP_MUTEX_FIXUP_PATH:
-            fixups.append(ISP_MUTEX_FIXUP)
-        if file.dst == 'vendor/bin/thermal-engine':
-            fixups.append(THERMAL_CONFIG_PATH_FIXUP)
-        if file.dst == Q3A64_AUDIT_ONLY_PATH:
-            fixups.append(Q3A64_AUDIT_ONLY_PROVENANCE)
-        if file.dst in LIBC_PRIVATE_VERSION_FIXUP_PATHS:
-            fixups.append(LIBC_PRIVATE_VERSION_FIXUP)
-        fixup = '; '.join(fixups) if fixups else 'none'
-        rows.append(
-            (
-                file.src,
-                file.dst,
-                hashlib.sha256(blob.read_bytes()).hexdigest(),
-                str(blob.stat().st_size),
-                kind,
-                elf_class,
-                machine,
-                license_provenance,
-                fixup,
-            )
-        )
-
-    rows.sort(key=lambda row: (row[1], row[0]))
-    fields = (
-        'source_path',
-        'destination',
-        'sha256',
-        'bytes',
-        'kind',
-        'elf_class',
-        'machine',
-        'license_provenance',
-        'fixup',
-    )
-    lines = ['\t'.join(fields), *('\t'.join(row) for row in rows)]
-    (vendor_path / 'BLOB_PROVENANCE.tsv').write_text('\n'.join(lines) + '\n')
-
-    (vendor_path / 'README.md').write_text(
-        '# Proprietary files for Google Nexus 6P (angler)\n\n'
-        'This tree uses official Google OPM7.181205.001 inputs for Angler '
-        'hardware support. All Angler source files are byte-identical to the '
-        'factory image. Most are covered by the official Huawei vendor-image package or an '
-        'explicit Qualcomm extraction path. Fifteen closure files (two '
-        'libaudcal and thirteen camera libraries) are factory-only because '
-        'the same paths in the Huawei package contain different bytes; their '
-        'provenance is recorded explicitly. The ISP module is regenerated '
-        'from the exact stock input with a scoped Android P mutex/FORTIFY '
-        'instruction fix whose upstream provenance is pinned in the metadata. '
-        'The stock camera statistics and OEM modules are regenerated with '
-        'scoped sensor ABI, sensor-thread scheduling, and AF message-lifetime '
-        'fixes required by Android 15.\n\n'
-        'Huawei archive SHA-256: '
-        '`2eb9a77de059739d33c7fad07e34034f03a93d70eea39460bb0d9278e5763053`.\n\n'
-        'Qualcomm archive SHA-256: '
-        '`78222d6c627020d8312477f647253b37569882ebdfe527207f39074dc05fc6a1`.\n\n'
-        '`BLOB_PROVENANCE.tsv` records source/destination paths, SHA-256, '
-        'size, file type, ELF identity, license provenance, and any scoped '
-        'output fixup. License '
-        'acceptance for local extraction does not authorize unrestricted '
-        'public redistribution; do not push proprietary bytes until that '
-        'policy is reviewed separately.\n'
-    )
-
-
 # Keep this baseline fixup-free. A blob may be changed only after a recorded
 # Android 15 loader/symbol failure identifies one exact compatibility patch.
 module = ExtractUtilsModule(
@@ -663,8 +480,5 @@ module = ExtractUtilsModule(
         'vendor/qcom/opensource/dataservices',
     ],
 )
-module.add_postprocess_fn(write_blob_metadata)
-
-
 if __name__ == '__main__':
     ExtractUtils.device(module).run()

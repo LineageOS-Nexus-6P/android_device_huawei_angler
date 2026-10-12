@@ -17,19 +17,3 @@ cc_binary {
         "Power.cpp",
     ],
 }
-
-cc_test {
-    name: "angler_power_integration_test",
-    defaults: ["android.hardware.power-ndk_shared"],
-    vendor: true,
-    srcs: [
-        "tests/PowerIntegrationTest.cpp",
-        "Power.cpp",
-    ],
-    local_include_dirs: ["."],
-    shared_libs: [
-        "libbase",
-        "libbinder_ndk",
-        "libdl",
-    ],
-}

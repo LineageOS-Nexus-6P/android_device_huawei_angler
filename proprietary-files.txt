@@ -1,6 +1,5 @@
-# The Angler hardware blobs are pinned to Google OPM7.181205.001. SHA-1
-# suffixes are extract-utils pins; SHA-256, ELF identity, provenance, and
-# scoped compatibility fixups are recorded in BLOB_PROVENANCE.tsv.
+# The Angler hardware blobs are pinned to Google OPM7.181205.001.
+# SHA-1 suffixes are extract-utils pins.
 
 # Configuration (12)
 system/etc/permissions/cneapiclient.xml|15831adf0e80243042b90c734eea0a68eb8ae9c9
